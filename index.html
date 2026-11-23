@@ -1,1 +1,361 @@
-＜ファイルから読み込んだ全内容＞
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北陸イベントカレンダー | 富山・石川・福井</title>
+<meta name="description" content="富山・石川・福井のアニメ系・コスプレ・DJイベントカレンダー">
+<meta property="og:title" content="北陸イベントカレンダー">
+<meta property="og:description" content="富山・石川・福井のアニメ系・コスプレ・DJイベント">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0f1419;
+  --card: #1a2332;
+  --text: #e7e9ea;
+  --muted: #8b98a5;
+  --toyama: #4fc3f7;
+  --ishikawa: #66bb6a;
+  --fukui: #ffb74d;
+  --border: #38444d;
+  --hover: #22303c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+header {
+  background: linear-gradient(135deg, #1e3a5f, #0d2137);
+  padding: 1.2rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header h1 { margin: 0 0 0.3rem; font-size: 1.4rem; font-weight: 700; }
+header p { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.share-bar {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+  padding: 0.6rem; background: #15202b; border-bottom: 1px solid var(--border);
+}
+.share-btn {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--hover); border: 1px solid var(--border); color: var(--text);
+  padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer;
+  text-decoration: none;
+}
+.share-btn:hover { background: #2c3e50; }
+.share-btn.x { background: #000; }
+.share-btn.line { background: #06C755; color: #fff; border-color: #06C755; }
+.share-btn.facebook { background: #1877F2; color: #fff; border-color: #1877F2; }
+.controls {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+  padding: 0.8rem; background: var(--card); border-bottom: 1px solid var(--border);
+  position: sticky; top: 110px; z-index: 90;
+}
+.btn {
+  background: var(--hover); border: 1px solid var(--border); color: var(--text);
+  padding: 0.45rem 0.8rem; border-radius: 999px; font-size: 0.85rem; cursor: pointer;
+}
+.btn.active { background: #1d9bf0; border-color: #1d9bf0; color: #fff; }
+.pref-filter .btn[data-pref="富山"].active { background: var(--toyama); color: #000; }
+.pref-filter .btn[data-pref="石川"].active { background: var(--ishikawa); color: #000; }
+.pref-filter .btn[data-pref="福井"].active { background: var(--fukui); color: #000; }
+.month-nav {
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+  padding: 0.6rem; font-weight: 600;
+}
+.calendar {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  padding: 0.5rem; max-width: 900px; margin: 0 auto;
+}
+.day-header { text-align: center; font-size: 0.75rem; color: var(--muted); padding: 0.4rem 0; }
+.day-header.sun { color: #f4212e; }
+.day-header.sat { color: #1d9bf0; }
+.day-cell {
+  min-height: 70px; background: var(--card); border-radius: 6px; padding: 4px;
+  font-size: 0.75rem; position: relative; overflow: hidden;
+}
+.day-cell.empty { background: transparent; }
+.day-num { font-weight: 600; margin-bottom: 2px; }
+.day-cell.sun .day-num { color: #f4212e; }
+.day-cell.sat .day-num { color: #1d9bf0; }
+.event-chip {
+  display: block; margin: 2px 0; padding: 2px 4px; border-radius: 4px;
+  font-size: 0.65rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; font-weight: 500; max-width: 100%;
+}
+.event-chip.富山 { background: var(--toyama); color: #000; }
+.event-chip.石川 { background: var(--ishikawa); color: #000; }
+.event-chip.福井 { background: var(--fukui); color: #000; }
+.legend {
+  display: flex; justify-content: center; gap: 1rem; padding: 0.6rem; font-size: 0.8rem; flex-wrap: wrap;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.dot.富山 { background: var(--toyama); }
+.dot.石川 { background: var(--ishikawa); }
+.dot.福井 { background: var(--fukui); }
+.list-view { max-width: 700px; margin: 0 auto; padding: 0.5rem; display: none; }
+.event-card {
+  background: var(--card); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.6rem; border-left: 4px solid;
+}
+.event-card.富山 { border-left-color: var(--toyama); }
+.event-card.石川 { border-left-color: var(--ishikawa); }
+.event-card.福井 { border-left-color: var(--fukui); }
+.event-card h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+.event-card a { color: #1d9bf0; text-decoration: none; }
+.meta { color: var(--muted); font-size: 0.85rem; }
+.modal {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 200; align-items: center; justify-content: center; padding: 1rem;
+}
+.modal.open { display: flex; }
+.modal-content {
+  background: var(--card); border-radius: 12px; padding: 1.2rem; max-width: 420px; width: 100%;
+  border: 1px solid var(--border); position: relative;
+}
+.modal-content h3 { margin: 0 0 0.6rem; font-size: 1.1rem; }
+.modal-close {
+  position: absolute; top: 0.6rem; right: 0.8rem; background: none; border: none;
+  color: var(--muted); font-size: 1.4rem; cursor: pointer;
+}
+.modal-link {
+  display: inline-block; margin-top: 0.8rem; background: #1d9bf0; color: #fff;
+  padding: 0.5rem 1rem; border-radius: 999px; text-decoration: none; font-size: 0.9rem;
+}
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1d9bf0; color: #fff; padding: 0.6rem 1.2rem; border-radius: 999px;
+  font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 300; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+footer {
+  text-align: center; padding: 1.5rem; color: var(--muted); font-size: 0.75rem;
+  border-top: 1px solid var(--border); margin-top: 2rem;
+}
+@media (max-width: 600px) {
+  .day-cell { min-height: 58px; }
+  .event-chip { font-size: 0.6rem; }
+  .controls { top: 100px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>北陸イベントカレンダー</h1>
+  <p>富山・石川・福井のアニメ系・コスプレ・DJイベント</p>
+</header>
+
+<div class="share-bar">
+  <a class="share-btn x" id="shareX" href="#" target="_blank">𝕏 でシェア</a>
+  <a class="share-btn line" id="shareLine" href="#" target="_blank">LINEでシェア</a>
+  <a class="share-btn facebook" id="shareFB" href="#" target="_blank">Facebook</a>
+  <button class="share-btn" id="copyLink">リンクをコピー</button>
+</div>
+
+<div class="controls">
+  <div class="pref-filter">
+    <button class="btn active" data-pref="all">すべて</button>
+    <button class="btn" data-pref="富山">富山</button>
+    <button class="btn" data-pref="石川">石川</button>
+    <button class="btn" data-pref="福井">福井</button>
+  </div>
+  <button class="btn" id="toggleView">リスト表示</button>
+</div>
+
+<div class="month-nav">
+  <button class="btn" id="prevMonth">‹</button>
+  <span id="currentMonth"></span>
+  <button class="btn" id="nextMonth">›</button>
+</div>
+
+<div class="legend">
+  <span><span class="dot 富山"></span>富山</span>
+  <span><span class="dot 石川"></span>石川</span>
+  <span><span class="dot 福井"></span>福井</span>
+</div>
+
+<div class="calendar" id="calendar"></div>
+<div class="list-view" id="listView"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody" class="meta"></div>
+    <a id="modalLink" class="modal-link" href="#" target="_blank" rel="noopener" style="display:none;">詳細・参加情報を見る →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast">リンクをコピーしました</div>
+
+<footer>
+  最終更新: <span id="updated"></span> ｜ イベントをタップで詳細表示
+</footer>
+
+<script>
+const EVENTS = [{"year": 2026, "month": 1, "day": 9, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 2, "day": 13, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 3, "day": 13, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 5, "day": 8, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 6, "day": 12, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 7, "day": 10, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 8, "day": 14, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 9, "day": 11, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 10, "day": 4, "pref": "石川", "timeband": "昼", "name": "おでかけライブin金沢24", "time": "11:30-15:30", "place": "金沢勤労者プラザ", "fee": "要確認", "url": "https://www.youyou.co.jp/allgenre/kanazawa/20261004/"}, {"year": 2026, "month": 10, "day": 11, "pref": "富山", "timeband": "昼", "name": "コスプレクラウド 太閤山", "time": "10:00-16:30", "place": "太閤山ランド", "fee": "要確認", "url": "https://x.com/cosplay_crowd"}, {"year": 2026, "month": 10, "day": 16, "pref": "石川", "timeband": "夜", "name": "perch #パーチ05", "time": "21:30-24:30", "place": "小松市 partyTRUMP", "fee": "入場無料(要チャージ&1D)", "url": "https://x.com/hiyonuko"}, {"year": 2026, "month": 10, "day": 18, "pref": "富山", "timeband": "昼", "name": "昼メリカ", "time": "12:00-19:30", "place": "中滑川複合施設メリカ", "fee": "要確認", "url": "https://x.com/cosplay_crowd"}, {"year": 2026, "month": 10, "day": 24, "pref": "富山", "timeband": "夜", "name": "あに部∞神回ツアター", "time": "22:00〜", "place": "富山 CLUB LEVEL3", "fee": "前日参加表明¥1,000(1D) など", "url": "https://twipla.jp/events/746907"}, {"year": 2026, "month": 10, "day": 25, "pref": "石川", "timeband": "昼", "name": "日本自動車博物館 コスプレ撮影会", "time": "10:00-17:30", "place": "日本自動車博物館（小松市）", "fee": "要確認", "url": "https://jpcc.or.jp/event/carmuseum/"}, {"year": 2026, "month": 10, "day": 25, "pref": "福井", "timeband": "昼", "name": "Chance! vol.25", "time": "14:00-19:00", "place": "福井市 swell", "fee": "¥1,500(+1D) / 18歳以下¥1,000", "url": "https://x.com/Chancefukui"}, {"year": 2026, "month": 10, "day": 31, "pref": "石川", "timeband": "夜", "name": "HYPEPANIC Halloween", "time": "21:30開場 / 22:00開始", "place": "小松市 partyTRUMP", "fee": "前売¥1,500 / 当日¥2,000 (コスプレ割あり)", "url": "https://x.com/hiyonuko"}, {"year": 2026, "month": 11, "day": 7, "pref": "福井", "timeband": "昼", "name": "39RUSH", "time": "13:00〜", "place": "福井 mixcafe CREME", "fee": "要確認", "url": "https://twipla.jp/events/740949"}, {"year": 2026, "month": 11, "day": 8, "pref": "富山", "timeband": "昼", "name": "太閤山ランド", "time": "10:00-16:30", "place": "太閤山ランド", "fee": "要確認", "url": "https://x.com/cosplay_crowd"}, {"year": 2026, "month": 11, "day": 13, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 11, "day": 20, "pref": "石川", "timeband": "夜", "name": "perch #パーチ06", "time": "21:30-24:30", "place": "小松市 partyTRUMP", "fee": "要確認", "url": "https://x.com/hiyonuko"}, {"year": 2026, "month": 11, "day": 28, "pref": "富山", "timeband": "夜", "name": "夜メリカ即売会", "time": "12:00-19:30", "place": "中滑川複合施設メリカ", "fee": "要確認", "url": "https://x.com/cosplay_crowd"}, {"year": 2026, "month": 11, "day": 28, "pref": "石川", "timeband": "昼", "name": "かがこす！ at ホテルアローレ", "time": "13:00-18:00", "place": "石川県加賀市 ホテルアローレ", "fee": "観覧無料（ステージ）/ チケットあり", "url": "https://livepocket.jp/e/kagacos1128"}, {"year": 2026, "month": 12, "day": 5, "pref": "富山", "timeband": "夜", "name": "AOIYORU 4th Anniversary", "time": "22:00-05:00", "place": "富山 MAIRO", "fee": "前売¥3,000 / 当日¥3,500 (1D別)", "url": "https://x.com/AOIYORU_toyama"}, {"year": 2026, "month": 12, "day": 11, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2026"}, {"year": 2026, "month": 12, "day": 12, "pref": "富山", "timeband": "夜", "name": "夜メリカ", "time": "12:00-19:30", "place": "中滑川複合施設メリカ", "fee": "要確認", "url": "https://x.com/cosplay_crowd"}, {"year": 2026, "month": 12, "day": 12, "pref": "福井", "timeband": "夜", "name": "AnisonCloudLab.", "time": "20:00-26:00", "place": "福井 mixcafe crème", "fee": "¥2,500(1D) フライヤー持参割引あり", "url": "https://twipla.jp/events/744211"}, {"year": 2026, "month": 12, "day": 19, "pref": "石川", "timeband": "夜", "name": "perch Vol.07 -HALF ANNIVERSARY-", "time": "21:00-02:00", "place": "小松市 partyTRUMP", "fee": "¥2,000(1D)", "url": "https://x.com/hiyonuko"}, {"year": 2026, "month": 12, "day": 19, "pref": "福井", "timeband": "昼", "name": "Build-Animation Chapter.5", "time": "14:00-20:00", "place": "福井市 mixcafe CRÈME", "fee": "¥2,500(1D)", "url": "https://twvt.me/Build_Anime_5"}, {"year": 2026, "month": 12, "day": 20, "pref": "富山", "timeband": "昼", "name": "ラポール", "time": "10:00-16:00", "place": "要確認", "fee": "要確認", "url": "https://x.com/to2_toyama"}, {"year": 2027, "month": 1, "day": 3, "pref": "富山", "timeband": "昼", "name": "北陸オタク新年会", "time": "お昼", "place": "富山 MAIRO", "fee": "要確認（過去例¥2,500/飲み放題¥5,000）", "url": "https://x.com/saikuro0526"}, {"year": 2027, "month": 1, "day": 8, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 1, "day": 24, "pref": "富山", "timeband": "昼", "name": "こすぷれちゃんねる in QQプラザ", "time": "要確認", "place": "QQプラザ", "fee": "要確認", "url": "https://x.com/to2_toyama"}, {"year": 2027, "month": 2, "day": 12, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 3, "day": 12, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 4, "day": 17, "pref": "石川", "timeband": "昼", "name": "かがやきフェスSpring2027", "time": "終日", "place": "金沢中心部", "fee": "要確認", "url": "https://kagayaki-fes.jp/"}, {"year": 2027, "month": 4, "day": 18, "pref": "石川", "timeband": "昼", "name": "かがやきフェスSpring2027", "time": "終日", "place": "金沢中心部", "fee": "要確認", "url": "https://kagayaki-fes.jp/"}, {"year": 2027, "month": 5, "day": 14, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 6, "day": 11, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 7, "day": 9, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 8, "day": 13, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 9, "day": 10, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 10, "day": 2, "pref": "石川", "timeband": "昼", "name": "かがやきフェス2027", "time": "終日", "place": "金沢中心部", "fee": "要確認", "url": "https://kagayaki-fes.jp/"}, {"year": 2027, "month": 10, "day": 3, "pref": "石川", "timeband": "昼", "name": "かがやきフェス2027", "time": "終日", "place": "金沢中心部", "fee": "要確認", "url": "https://kagayaki-fes.jp/"}, {"year": 2027, "month": 11, "day": 12, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}, {"year": 2027, "month": 12, "day": 10, "pref": "福井", "timeband": "夜", "name": "ENCOUNT", "time": "20:00-24:00", "place": "福井市 mixcafe creme", "fee": "1500円(1ドリンク付)", "url": "https://x.com/hashtag/ENCOUNT2027"}];
+
+const prefs = ["日", "月", "火", "水", "木", "金", "土"];
+let currentYear = 2026;
+let currentMonth = 10;
+let filterPref = "all";
+let listMode = false;
+
+const SHARE_TEXT = "北陸三県のアニメ・コスプレ・DJイベントカレンダー";
+const SHARE_URL = location.href;
+
+function pad(n) { return n.toString().padStart(2, "0"); }
+function truncate(str, len=10) { return str.length > len ? str.slice(0, len) + "…" : str; }
+
+function openModal(ev) {
+  document.getElementById("modalTitle").textContent = ev.name;
+  document.getElementById("modalBody").innerHTML = `
+    <div>${ev.year}/${pad(ev.month)}/${pad(ev.day)} (${prefs[new Date(ev.year, ev.month-1, ev.day).getDay()]}) ${ev.timeband}</div>
+    <div>⏰ ${ev.time}</div>
+    <div>📍 ${ev.place}</div>
+    <div>💰 ${ev.fee}</div>
+  `;
+  const link = document.getElementById("modalLink");
+  if (ev.url) {
+    link.href = ev.url;
+    link.style.display = "inline-block";
+  } else {
+    link.style.display = "none";
+  }
+  document.getElementById("modal").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+function setupShare() {
+  const text = encodeURIComponent(SHARE_TEXT);
+  const url = encodeURIComponent(SHARE_URL);
+  document.getElementById("shareX").href = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+  document.getElementById("shareLine").href = `https://social-plugins.line.me/lineit/share?url=${url}`;
+  document.getElementById("shareFB").href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+}
+
+function render() {
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const monthEvents = EVENTS.filter(e =>
+    e.year === currentYear && e.month === currentMonth + 1 &&
+    (filterPref === "all" || e.pref === filterPref)
+  );
+
+  document.getElementById("currentMonth").textContent = `${currentYear}年${currentMonth + 1}月`;
+
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  prefs.forEach((d, i) => {
+    const el = document.createElement("div");
+    el.className = "day-header" + (i === 0 ? " sun" : i === 6 ? " sat" : "");
+    el.textContent = d;
+    cal.appendChild(el);
+  });
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    empty.className = "day-cell empty";
+    cal.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement("div");
+    const date = new Date(currentYear, currentMonth, d);
+    const dow = date.getDay();
+    cell.className = "day-cell" + (dow === 0 ? " sun" : dow === 6 ? " sat" : "");
+    const num = document.createElement("div");
+    num.className = "day-num";
+    num.textContent = d;
+    cell.appendChild(num);
+
+    monthEvents.filter(e => e.day === d).forEach(ev => {
+      const chip = document.createElement("div");
+      chip.className = `event-chip ${ev.pref}`;
+      chip.textContent = truncate(ev.name, 8);
+      chip.title = ev.name;
+      chip.onclick = (e) => { e.stopPropagation(); openModal(ev); };
+      cell.appendChild(chip);
+    });
+    cal.appendChild(cell);
+  }
+
+  const list = document.getElementById("listView");
+  list.innerHTML = "";
+  const sorted = [...monthEvents].sort((a, b) => a.day - b.day);
+  if (sorted.length === 0) {
+    list.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem;">この月のイベントはありません</p>';
+  } else {
+    sorted.forEach(ev => {
+      const card = document.createElement("div");
+      card.className = `event-card ${ev.pref}`;
+      card.innerHTML = `
+        <h3>${ev.name}</h3>
+        <div class="meta">${ev.year}/${pad(ev.month)}/${pad(ev.day)} (${prefs[new Date(ev.year, ev.month-1, ev.day).getDay()]}) ${ev.timeband}</div>
+        <div class="meta">⏰ ${ev.time}　📍 ${ev.place}</div>
+        <div class="meta">💰 ${ev.fee}</div>
+        ${ev.url ? `<div><a href="${ev.url}" target="_blank" rel="noopener">詳細・参加情報を見る →</a></div>` : ""}
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById("updated").textContent = new Date().toLocaleString("ja-JP");
+}
+
+document.getElementById("prevMonth").onclick = () => {
+  currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } render();
+};
+document.getElementById("nextMonth").onclick = () => {
+  currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } render();
+};
+document.querySelectorAll(".pref-filter .btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".pref-filter .btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    filterPref = btn.dataset.pref;
+    render();
+  };
+});
+document.getElementById("toggleView").onclick = () => {
+  listMode = !listMode;
+  document.getElementById("calendar").style.display = listMode ? "none" : "grid";
+  document.getElementById("listView").style.display = listMode ? "block" : "none";
+  document.getElementById("toggleView").textContent = listMode ? "カレンダー表示" : "リスト表示";
+};
+document.getElementById("modalClose").onclick = closeModal;
+document.getElementById("modal").onclick = (e) => { if (e.target.id === "modal") closeModal(); };
+
+document.getElementById("copyLink").onclick = () => {
+  navigator.clipboard.writeText(location.href).then(() => {
+    showToast("リンクをコピーしました");
+  }).catch(() => {
+    showToast("コピーに失敗しました");
+  });
+};
+
+setupShare();
+
+const today = new Date();
+currentYear = today.getFullYear();
+currentMonth = today.getMonth();
+render();
+</script>
+</body>
+</html>＜ファイルから読み込んだ全内容＞
